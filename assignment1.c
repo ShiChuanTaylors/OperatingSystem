@@ -4,9 +4,12 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <string.h>
 
 #define BASE_PROCESSES 2
 #define FIFO_PIPE "mypipe.fifo"
+#define KEEP_MSG "\tKeep"
+#define FWD_MSG "\tForward"
 
 void childProcess1(int pipeParentFd[]);
 void childProcess2(int pipeParentFd[]);
@@ -53,10 +56,23 @@ int main(int argc, char* argv[] ) {
 		close(pipeFd[1]);		/* Close the write pipe of child */
 		childProcess1(pipeFd);
 
+		fp = fopen("child-log.txt", "w");
 		printf("Child Process 1: reading from Parent..\n");
-		read(pipeFd[0], buffer, sizeof(buffer));
+		while(read(pipeFd[0], buffer, sizeof(buffer))) {	/* read all the buffers from pipe */
+			sscanf(buffer, "%d%[^\n]",&msgId, buffer);		/* Break the string into the ID and message */
+			//printf("%d%s\n",msgId,buffer);
+			if(msgId == 1) {
+				strcat(buffer, KEEP_MSG);
+			}
+			else {
+				strcat(buffer, FWD_MSG);
+			}
+			printf("%d%s\n",msgId,buffer);
+			//fprintf(fp, "%s", buffer);
+		}
 		printf("I'm Child Process 1, I am reading message: %s\n", buffer);
 
+		close(fp);				/* Close the log file */
 		close(pipeFd[0]);		/* Close the read pipe */
 
 		return 0;
@@ -67,14 +83,20 @@ int main(int argc, char* argv[] ) {
 		close(pipeFd[0]);		/* Close the read pipe of parent */
 
 		/* Write to Childs */
-
-		fp = fopen("dataProcess1", "r");	/* Open Message File */
-		while(fscanf(fp, "%d%s", msgId, buffer) != EOF) {		/* Read all the messages from the file */
-			printf("%s\n", );
+		fp = fopen("dataProcess1.txt", "r");	/* Open Message File */
+		while(fgets(buffer, (sizeof(buffer) + 2), fp)) {			/* Read all the messages from the file */
+			write(pipeFd[1], buffer, sizeof(buffer));
 		}
-		printf("Parent - Writing \n");
-		snprintf(buffer, sizeof(buffer), "Hello Im YOUR PARENT!");
-		write(pipeFd[1], buffer, sizeof(buffer));
+			
+		//snprintf(buffer, sizeof(buffer), "%s\n" , buffer);
+		
+		fclose(fp); /* Close file */
+			
+			
+		
+		//printf("Parent - Writing \n")
+		
+		//write(pipeFd[1], buffer, sizeof(buffer));
 
 		/* Fork Child process 3 */
 		childProcess3(pipeFd);
