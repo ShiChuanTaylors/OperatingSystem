@@ -1,5 +1,0 @@
-2	"Hello from Process 1, I miss you"
-3	"Hello from Process 1, I love you"
-4	"Hello from Process 1, I kiss you"
-3	"Hello from Process 1, I HAHA you"
-2	"Hellooo"

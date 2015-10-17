@@ -8,19 +8,25 @@
 #define BASE_PROCESSES 2
 #define FIFO_PIPE "mypipe.fifo"
 
-char buffer[128];
+char buffer[500];
 
 int main(int argc, char* argv[] ) {
 
 	FILE* fp;
 	int msgId;
 
-	fp = fopen("dataProcess1.txt", "r");	/* Open Message File */
-	while(fscanf(fp, "%d\t%[^\n]", &msgId, buffer) != EOF) {		/* Read all the messages from the file */
-		if(msgId == 2) {
-			printf("%d\t%s\n", msgId, buffer);
-		}
+	fp = fopen("c1Msg.txt", "r");	/* Open Message File */
+	while(fscanf(fp, "%d%[^\n]", &msgId, buffer) != EOF) {		/* Read all the messages from the file */
+
+		snprintf(buffer, sizeof(buffer), "%d%s", msgId, buffer);
+		//printf("%d%s\n", msgId, buffer);
+		printf("%s\n", buffer);
+		
 	}
-        	
+
+	/*while(fgets(buffer, sizeof(buffer), fp)) {
+		printf("%s", buffer);
+	}*/
+
 	return EXIT_SUCCESS;
 }

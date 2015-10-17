@@ -1,5 +1,0 @@
-1	"Yoyoyo! Child Process 3 is HERE, I miss you"
-1	"Yoyoyo! Child Process 3 is HERE, I love you"
-2	"Yoyoyo! Child Process 3 is HERE, I kiss you"
-3	"Yoyoyo! Child Process 3 is HERE, I want you"
-2	"Yoyoyo! Child Process 3 is HERE, I HAHA you"
