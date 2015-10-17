@@ -1,5 +1,3 @@
-2	"Wassup! Callin' frm Child Process 2, I miss you"
 1	"Wassup! Callin' frm Child Process 2, I love you"
 4	"Wassup! Callin' frm Child Process 2, I kiss you"
-4	"Wassup! Callin' frm Child Process 2, I want you"
-2	"Wassup! Callin' frm Child Process 2, I HAHA you"
+2	"Wassup! Callin' frm Child Process 2, I want you"

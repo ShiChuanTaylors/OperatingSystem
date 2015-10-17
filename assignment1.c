@@ -33,7 +33,6 @@ int roundTurnNo = 0;
 /* Unnamed Pipes */
 int pipeFd[2];	
 int pipeC1Fd[2];
-//int pipeC3Fd[2];
 
 void childProcess1(int pipeParentFd[]);
 void childProcess2(int pipeParentFd[]);
@@ -42,34 +41,26 @@ void childProcess3(int pipeParentFd[]);
 void childProcess1Content(int pipeParentFd[]);
 void childProcess2Content(int pipeParentFd[]);
 void childProcess3Content(int pipeC3Fd[]);
-void parentProcessContent();
 
-char buffer[128];			/* Buffer for the message content, with ASCII 128 bit max */
-char tmpBuffer[130];		/* Buffer for the whole line message that included MsgID, and the Message */
+//char buffer[128];			/* Buffer for the message content, with ASCII 128 bit max */
+//char tmpBuffer[130];		/* Buffer for the whole line message that included MsgID, and the Message */
 
 int main(int argc, char* argv[] ) {
 
+	char buffer[128];
+	char tmpBuffer[130];
+	FILE* fp;
 	/* Remove all existing log files */
-	/*if (access(PP_LOG, F_OK) == -1) {
+	
 		remove(PP_LOG);
-	}
-	if (access(C1_LOG, F_OK) == -1) {
 		remove(C1_LOG);
-	}
-	if (access(C2_LOG, F_OK) == -1) {
 		remove(C2_LOG);
-	}
-	if (access(C3_LOG, F_OK) == -1) {
 		remove(C3_LOG);
-	}
-	if (access(FIFO_PIPE, F_OK) == -1) {
 		remove(FIFO_PIPE);
-		printf("Remove FiFO\n");
-	}
-	*/
+	
 	
 	int pid;		//Initialize first process to ID 1
-	FILE* fp;
+	
 	int msgId;	
 
 
@@ -107,16 +98,12 @@ int main(int argc, char* argv[] ) {
 			/* Read Messages from Parent Process of Child 3 using named pipe */
 		
 		}
-		//parentProcessContent();
-			
-		
-		//printf("Parent - Writing \n")
-		
-		//write(pipeFd[1], buffer, sizeof(buffer));
 
 		/* Fork Child process 3 */
+		printf("Process 3 done!\n");
 		//wait(&pid);
 		childProcess3(pipeFd);
+		printf("Process 3 done!\n");
 
 		//close(pipeFd[1]);		/* Close the write pipe */
 
@@ -126,36 +113,11 @@ int main(int argc, char* argv[] ) {
 	return EXIT_SUCCESS;
 }
 
-void parentProcessContent() {
-	// FILE* fp;
-	// int msgId;	
-
-	
-
-	// if(roundTurnNo >= 2) {				/* If this is the second round trip of the processes */
-	// 	return;
-	// } else {							/* If the round trip of the processes is none or less than one */
-	// 	fp = fopen(PP_LOG, "a+");					/* Open a log file */
-	// 	printf("Parent Process 1: reading from Child 3..\n");
-	// 	while(read(pipeC3Fd[0], tmpBuffer, sizeof(tmpBuffer))) {	/* Read all the buffers from pipe */
-	// 		sscanf(tmpBuffer, "%d%[^\n]",&msgId, buffer);				/* Break the message into the ID and message */
-	// 		//printf("%d%s\n",msgId,buffer);
-	// 		if(msgId == 4) {											/* Message is belongs to the child */
-	// 			strcat(buffer, KEEP_MSG);								/* Append message will "keep" word*/
-	// 		} else {													/* Message is NOT belongs to the child */
-	// 			write(pipeFd[1], tmpBuffer, sizeof(tmpBuffer));			/* Forward the message to next child */
-	// 			strcat(buffer, FWD_MSG);								/* Append message will "forward" word*/
-	// 		}
-	// 		//printf("%d%s\n",msgId,buffer);
-	// 		fprintf(fp, "%d%s\n",msgId,buffer);				/* Write the messages into the log file */
-	// 	}
-	// 	fclose(fp);
-	// 	//childProcess1Content(pipeFd);
-//	}
-}
 
 void childProcess1(int pipeParentFd[]) {
 
+	char buffer[128];
+	char tmpBuffer[130];
 	//char buffer[128];
 	/* Declare a pipe for child 1 */
 	if(c1Status == 0) {
@@ -172,7 +134,7 @@ void childProcess1(int pipeParentFd[]) {
 			/* Child Process 2 section */
 			close(pipeC1Fd[1]);		/* Close the write pipe of child */
 //			wait(&pid);
-			//childProcess2(pipeC1Fd);
+			childProcess2(pipeC1Fd);
 
 			//printf("Child Process 2: reading from Child Process 1..\n");
 			//read(pipeC1Fd[0], buffer, sizeof(buffer));
@@ -222,6 +184,9 @@ void childProcess1(int pipeParentFd[]) {
 void childProcess1Content(int pipeParentFd[]) {
 	int msgId;
 	FILE* fp;
+	char buffer[128];
+	char tmpBuffer[130];
+
 	/* Read Messages from Parent Process of Child 1 */
 	printf("Open Children 1 Log File..\n");
 	fp = fopen(C1_LOG, "a+");					/* Open a log file */
@@ -240,7 +205,6 @@ void childProcess1Content(int pipeParentFd[]) {
 		}
 		//printf("%d%s\n",msgId,buffer);
 		fprintf(fp, "%d%s\n",msgId,buffer);				/* Write the messages into the log file */
-		printf("DONE!\n");
 	}
 	//printf("I'm Child Process 1, I am reading message: %s\n", buffer);
 	printf("Children 1 Log FIle saved successfully\n");
@@ -261,42 +225,15 @@ void childProcess1Content(int pipeParentFd[]) {
 
 void childProcess2(int pipeParentFd[]) {
 	int msgId;
-	//char buffer[128];
+	char buffer[128];
+	char tmpBuffer[130];
 	int namedPipe;
 	FILE* fp;
 
-	/* Create a named pipe if is not exist */
-	if (access(FIFO_PIPE, F_OK) == -1) {
-		printf("Creating named pipe...\n");
-		namedPipe = mkfifo(FIFO_PIPE, 0777); 
-		if (namedPipe != 0) {
-			/* the fifo name */
-			/* check if fifo already /* if not then, create the fifo*/
-			printf("Could not create fifo %s\n", FIFO_PIPE);
-			exit(EXIT_FAILURE); 
-		}
-		printf("Named pipe created successfully: %s\n",FIFO_PIPE);
-	}
-
-	/* Open the named pipe for read only on child process 2 */
-	namedPipe = open(FIFO_PIPE, O_WRONLY);
-	
-	/* Writing logs message to each child processes */
-	/*printf("Child Process 2- Writing \n");
-	snprintf(buffer, sizeof(buffer), "3\tHello from namedpipe..\n");
-	write(namedPipe, buffer, sizeof(buffer));*/
-	if(c3Status == 0) {
-		/* Write to Childs from Message File*/
-		fp = fopen(C2_TXT, "r");	/* Open Message File */
-		while(fgets(tmpBuffer, (sizeof(tmpBuffer) + 2), fp)) {			/* Read all the messages from the file */
-			write(namedPipe, tmpBuffer, sizeof(tmpBuffer));
-		}	
-		c3Status = 1;		/* File is logged */
-	}
-
-	fclose(fp);
+	printf("Running Child 2 Process..\n");
 
 	/* Read Messages from Parent Process of Child 2 */
+	printf("Open Child 2 Log File..\n");
 	fp = fopen(C2_LOG, "a+");					/* Open a log file */
 	printf("Child Process 2: reading from Child 1..\n");
 	while(read(pipeParentFd[0], tmpBuffer, sizeof(tmpBuffer))) {	/* Read all the buffers from pipe */
@@ -311,13 +248,46 @@ void childProcess2(int pipeParentFd[]) {
 		//printf("%d%s\n",msgId,buffer);
 		fprintf(fp, "%d%s\n",msgId,buffer);				/* Write the messages into the log file */
 	}
-
+	printf("Save and Close Child 2 Log File.\n");
 	fclose(fp); /* Close file */
 
-	if(c2Status != 0) {
-	//	childProcess3Content();
-	}
 
+
+	// /* Create a named pipe if is not exist */
+	// if (access(FIFO_PIPE, F_OK) == -1) {
+	// 	printf("Creating named pipe...\n");
+	// 	namedPipe = mkfifo(FIFO_PIPE, 0777); 
+	// 	if (namedPipe != 0) {
+	// 		/* the fifo name */
+	// 		/* check if fifo already /* if not then, create the fifo*/
+	// 		printf("Could not create fifo %s\n", FIFO_PIPE);
+	// 		exit(EXIT_FAILURE); 
+	// 	}
+	// 	printf("Named pipe created successfully: %s\n",FIFO_PIPE);
+	// }
+
+	// printf("Opening FIFO named pipe..\n");
+	// /* Open the named pipe for read only on child process 2 */
+	// namedPipe = open(FIFO_PIPE, O_WRONLY);
+	// printf("NAME PIPE ISSS: %d\n", namedPipe);
+	// printf("FIFO file is opened..\n");
+	// /* Writing logs message to each child processes */
+	// /*printf("Child Process 2- Writing \n");
+	// snprintf(buffer, sizeof(buffer), "3\tHello from namedpipe..\n");
+	// write(namedPipe, buffer, sizeof(buffer));*/
+	// printf("YOOOOOO..\n");
+	// if(c2Status == 0) {
+	// 	/* Write to Childs from Message File*/
+	// 	fp = fopen(C2_TXT, "r");	/* Open Message File */
+	// 	while(fgets(tmpBuffer, (sizeof(tmpBuffer) + 2), fp)) {			/* Read all the messages from the file */
+	// 		write(namedPipe, tmpBuffer, sizeof(tmpBuffer));
+	// 	}	
+	// 	c2Status = 1;		/* File is logged */
+	// }
+
+//	fclose(fp);
+
+	
 }
 
 void childProcess3(int pipeParentFd[]) {
@@ -329,6 +299,8 @@ void childProcess3(int pipeParentFd[]) {
 	int pid;	
 	pipe(pipeC3Fd);
 	FILE* fp;
+	char buffer[128];
+	char tmpBuffer[130];
 	
 	pid = fork();
 	if(pid == 0) {
@@ -359,10 +331,7 @@ void childProcess3(int pipeParentFd[]) {
 				//write(pipeFd[1], tmpBuffer, sizeof(tmpBuffer));			/* Forward the message to next child */
 				strcat(buffer, FWD_MSG);								/* Append message will "forward" word*/
 			}
-
-			printf("%d%s\n",msgId,buffer);
 			fprintf(fp, "%d%s\n",msgId,buffer);				/* Write the messages into the log file */
-			printf("IM DONE!\n");
 		}
 		printf("Close file PP LOG\n");
 		fclose(fp);
@@ -381,6 +350,8 @@ void childProcess3(int pipeParentFd[]) {
 
 void childProcess3Content(int pipeC3Fd[]) {
 	int msgId, namedPipe;
+	char buffer[128];
+	char tmpBuffer[130];
 	FILE* fp;
 	//char tBuffer[128];
 	/* Write Back to Parent */
@@ -402,18 +373,18 @@ void childProcess3Content(int pipeC3Fd[]) {
 
 	/* Read from Child Process 3 using the FIFO named pipe */
 
-	/* Create a named pipe if is not exist */
-	if (access(FIFO_PIPE, F_OK) == -1) {
-		printf("Creating named pipe...\n");
-		namedPipe = mkfifo(FIFO_PIPE, 0777); 
-		if (namedPipe != 0) {
-			/* the fifo name */
-			/* check if fifo already /* if not then, create the fifo*/
-			printf("Could not create fifo %s\n", FIFO_PIPE);
-			exit(EXIT_FAILURE); 
-		}
-		printf("Named pipe created successfully: %s\n",FIFO_PIPE);
-	}
+	// /* Create a named pipe if is not exist */
+	// if (access(FIFO_PIPE, F_OK) == -1) {
+	// 	printf("Creating named pipe...\n");
+	// 	namedPipe = mkfifo(FIFO_PIPE, 0777); 
+	// 	if (namedPipe != 0) {
+	// 		/* the fifo name */
+	// 		/* check if fifo already /* if not then, create the fifo*/
+	// 		printf("Could not create fifo %s\n", FIFO_PIPE);
+	// 		exit(EXIT_FAILURE); 
+	// 	}
+	// 	printf("Named pipe created successfully: %s\n",FIFO_PIPE);
+	// }
 
 	/* Open the named pipe */
 	//namedPipe = open(FIFO_PIPE, O_RDONLY);

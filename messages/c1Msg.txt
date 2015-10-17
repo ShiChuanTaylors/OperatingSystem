@@ -1,5 +1,3 @@
-3	"Hello from Child Process 1, I miss you"
-1	"Hello from Child Process 1, I love you"
 4	"Hello from Child Process 1, I kiss you"
 1	"Hello from Child Process 1, I want you"
 3	"Hello from Child Process 1, I HAHA you"
