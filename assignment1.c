@@ -56,7 +56,7 @@ int main(int argc, char* argv[] ) {
 	FILE* fp;
 	time_t timestamp;
 	int timing[3];
-	char timeWriteRecord[20];
+	char timeWrite2PipeRecord[20];
 
 	/* Remove all existing log files */
 	remove(PP_LOG); remove(C1_LOG); remove(C2_LOG); remove(C3_LOG); remove(FIFO_PIPE);
@@ -88,10 +88,10 @@ int main(int argc, char* argv[] ) {
 		fp = fopen(PP_TXT, "r");	/* Open Message File */
 		while(fgets(readBuffer, (sizeof(readBuffer) + 2), fp)) {			/* Read all the messages from the file */
 			calcTimestamp(timing, timestamp);
-	 		snprintf(timeWriteRecord, sizeof(timeWriteRecord), "%d:%d:%d\t",timing[0],timing[1],timing[2]);
-			//snprintf(finalMsg, "%s%s", timeWriteRecord, readBuffer);
-			//snprintf(finalMsg, sizeof(finalMsg), timeWriteRecord);
-			strcat(finalMsg, timeWriteRecord);
+	 		snprintf(timeWrite2PipeRecord, sizeof(timeWrite2PipeRecord), "%d:%d:%d\t",timing[0],timing[1],timing[2]);
+			//snprintf(finalMsg, "%s%s", timeWrite2PipeRecord, readBuffer);
+			//snprintf(finalMsg, sizeof(finalMsg), timeWrite2PipeRecord);
+			strcat(finalMsg, timeWrite2PipeRecord);
 			//printf("Concat: %s",finalMsg);
 			strcat(finalMsg, readBuffer);
 			printf("Writing: %s",finalMsg );
@@ -195,8 +195,8 @@ void childProcess1Content(int pipeC1Fd[], int pipeParentFd[]) {
 
 	time_t timestamp;
 	int timing[3];
-	char timeWriteRecord[10];
-	char timeReadRecord[10];
+	char timeWrite2PipeRecord[10];
+	char timeWrite2FileRecord[10];
 
 	
 	/* Write to Childs from Message File*/
@@ -208,10 +208,10 @@ void childProcess1Content(int pipeC1Fd[], int pipeParentFd[]) {
 	// }
 	while(fgets(readBuffer, (sizeof(readBuffer) + 2), fp)) {			/* Read all the messages from the file */
 		calcTimestamp(timing, timestamp);
- 		snprintf(timeWriteRecord, sizeof(timeWriteRecord), "%d:%d:%d\t",timing[0],timing[1],timing[2]);
-		//snprintf(finalMsg, "%s%s", timeWriteRecord, readBuffer);
-		//snprintf(finalMsg, sizeof(finalMsg), timeWriteRecord);
-		strcat(finalMsg, timeWriteRecord);
+ 		snprintf(timeWrite2PipeRecord, sizeof(timeWrite2PipeRecord), "%d:%d:%d\t",timing[0],timing[1],timing[2]);
+		//snprintf(finalMsg, "%s%s", timeWrite2PipeRecord, readBuffer);
+		//snprintf(finalMsg, sizeof(finalMsg), timeWrite2PipeRecord);
+		strcat(finalMsg, timeWrite2PipeRecord);
 		//printf("Concat: %s",finalMsg);
 		strcat(finalMsg, readBuffer);
 		printf("Writing: %s",finalMsg );
@@ -223,7 +223,7 @@ void childProcess1Content(int pipeC1Fd[], int pipeParentFd[]) {
 
 	c1Status = 1;		/* File is logged */
 	fclose(fp);	
-	close(pipeC1Fd[1]);
+	
 	printf("Write to Process 2 DONE!\n");
 
 
@@ -250,23 +250,26 @@ void childProcess1Content(int pipeC1Fd[], int pipeParentFd[]) {
 
 	while(read(pipeParentFd[0], finalMsg, sizeof(finalMsg))) {	/* Read all the buffers from pipe */
 		
-		sscanf(finalMsg, "%[^\t]\t%d%[^\n]",timeWriteRecord ,&msgId, buffer);				/* Break the message into the ID and message */
+		sscanf(finalMsg, "%[^\t]\t%d%[^\n]",timeWrite2PipeRecord ,&msgId, buffer);				/* Break the message into the ID and message */
 		calcTimestamp(timing, timestamp);
- 		snprintf(timeReadRecord, sizeof(timeReadRecord), "%d:%d:%d\t",timing[0],timing[1],timing[2]);
- 		printf("\n\n%s\n\n",timeReadRecord);
+ 		snprintf(timeWrite2FileRecord, sizeof(timeWrite2FileRecord), "%d:%d:%d\t",timing[0],timing[1],timing[2]);
+ 		printf("\n\n%s\n\n",timeWrite2FileRecord);
 		if(msgId == 2) {											/* Message is belongs to the child */
-			fprintf(fp,"%s\t%s%d%s%s\n",timeWriteRecord,timeReadRecord, msgId, buffer, KEEP_MSG);	/* print message to file with KEEP */
+			fprintf(fp,"%s\t\t%s\t%d%s%s\n",timeWrite2PipeRecord,timeWrite2FileRecord, msgId, buffer, KEEP_MSG);	/* print message to file with KEEP */
 			//strcat(buffer, KEEP_MSG);								
 		} else {													 /* Message is NOT belongs to the child */
 			write(pipeC1Fd[1], finalMsg, sizeof(finalMsg));				/* Forward the message to next child */
-			fprintf(fp,"%s\t%d%s%s\n",timeWriteRecord,timeReadRecord,msgId, buffer, FWD_MSG);		/* print message to file with FORWARDED */
+			fprintf(fp,"%s\t\t%s\t%d%s%s\n",timeWrite2PipeRecord,timeWrite2FileRecord,msgId, buffer, FWD_MSG);		/* print message to file with FORWARDED */
 		}
-		printf("DONE\n");
+		printf("DONEDONEDONEDONE\n");
+		timeWrite2FileRecord[0] = '\0';
 		
 	}
 	//printf("I'm Child Process 1, I am reading message: %s\n", buffer);
-	printf("Children 1 Log FIle saved successfully\n");
+	
 	fclose(fp);
+	close(pipeC1Fd[1]);		/* Close the write pipe */
+	printf("Children 1 Log FIle saved successfully\n");
 
 	
 }
@@ -282,8 +285,8 @@ void childProcess2(int pipeParentFd[]) {
 
 	time_t timestamp;
 	int timing[3];
-	char timeWriteRecord[10];
-	char timeReadRecord[10];
+	char timeWrite2PipeRecord[10];
+	char timeWrite2FileRecord[10];
 
 	//sleep(50000);
 	printf("Running Child 2 Process..\n");
@@ -321,10 +324,10 @@ void childProcess2(int pipeParentFd[]) {
 	// }	
 	while(fgets(readBuffer, (sizeof(readBuffer) + 2), fp)) {			/* Read all the messages from the file */
 		calcTimestamp(timing, timestamp);
- 		snprintf(timeWriteRecord, sizeof(timeWriteRecord), "%d:%d:%d\t",timing[0],timing[1],timing[2]);
-		//snprintf(finalMsg, "%s%s", timeWriteRecord, readBuffer);
-		//snprintf(finalMsg, sizeof(finalMsg), timeWriteRecord);
-		strcat(finalMsg, timeWriteRecord);
+ 		snprintf(timeWrite2PipeRecord, sizeof(timeWrite2PipeRecord), "%d:%d:%d\t",timing[0],timing[1],timing[2]);
+		//snprintf(finalMsg, "%s%s", timeWrite2PipeRecord, readBuffer);
+		//snprintf(finalMsg, sizeof(finalMsg), timeWrite2PipeRecord);
+		strcat(finalMsg, timeWrite2PipeRecord);
 		//printf("Concat: %s",finalMsg);
 		strcat(finalMsg, readBuffer);
 		printf("Writing: %s",finalMsg );
@@ -358,14 +361,15 @@ void childProcess2(int pipeParentFd[]) {
 
 	while(read(pipeParentFd[0], finalMsg, sizeof(finalMsg))) {	/* Read all the buffers from pipe */
 		
-		sscanf(finalMsg, "%[^\t]\t%d%[^\n]",timeWriteRecord ,&msgId, buffer);				/* Break the message into the ID and message */
-		
-		if(msgId == 2) {											/* Message is belongs to the child */
-			fprintf(fp,"%s\t%d%s%s\n",timeWriteRecord ,msgId, buffer, KEEP_MSG);	/* print message to file with KEEP */
+		sscanf(finalMsg, "%[^\t]\t%d%[^\n]",timeWrite2PipeRecord ,&msgId, buffer);				/* Break the message into the ID and message */
+		calcTimestamp(timing, timestamp);
+ 		snprintf(timeWrite2FileRecord, sizeof(timeWrite2FileRecord), "%d:%d:%d\t",timing[0],timing[1],timing[2]);
+		if(msgId == 3) {											/* Message is belongs to the child */
+			fprintf(fp,"%s\t\t%s\t%d%s%s\n",timeWrite2PipeRecord,timeWrite2FileRecord ,msgId, buffer, KEEP_MSG);	/* print message to file with KEEP */
 			//strcat(buffer, KEEP_MSG);								
 		} else {													 /* Message is NOT belongs to the child */
 			write(namedPipe, finalMsg, sizeof(finalMsg));				/* Forward the message to next child */
-			fprintf(fp,"%s\t%d%s%s\n",timeWriteRecord ,msgId, buffer, FWD_MSG);		/* print message to file with FORWARDED */
+			fprintf(fp,"%s\t\t%s\t%d%s%s\n",timeWrite2PipeRecord,timeWrite2FileRecord ,msgId, buffer, FWD_MSG);		/* print message to file with FORWARDED */
 		}
 		
 	}
@@ -392,8 +396,8 @@ void childProcess3() {
 
 	time_t timestamp;
 	int timing[3];
-	char timeWriteRecord[10];
-	char timeReadRecord[10];
+	char timeWrite2PipeRecord[10];
+	char timeWrite2FileRecord[10];
 	
 	pid = fork();
 	if(pid == 0) {
@@ -430,14 +434,16 @@ void childProcess3() {
 
 		while(read(pipeC3Fd[0], finalMsg, sizeof(finalMsg))) {	/* Read all the buffers from pipe */
 		
-			sscanf(finalMsg, "%[^\t]\t%d%[^\n]",timeWriteRecord ,&msgId, buffer);				/* Break the message into the ID and message */
-			
-			if(msgId == 2) {											/* Message is belongs to the child */
-				fprintf(fp,"%s\t%d%s%s\n",timeWriteRecord ,msgId, buffer, KEEP_MSG);	/* print message to file with KEEP */
+			sscanf(finalMsg, "%[^\t]\t%d%[^\n]",timeWrite2PipeRecord ,&msgId, buffer);				/* Break the message into the ID and message */
+			calcTimestamp(timing, timestamp);
+ 			snprintf(timeWrite2FileRecord, sizeof(timeWrite2FileRecord), "%d:%d:%d\t",timing[0],timing[1],timing[2]);
+
+			if(msgId == 1) {											/* Message is belongs to the child */
+				fprintf(fp,"%s\t\t%s\t%d%s%s\n",timeWrite2PipeRecord, timeWrite2FileRecord ,msgId, buffer, KEEP_MSG);	/* print message to file with KEEP */
 				//strcat(buffer, KEEP_MSG);								
 			} else {													 /* Message is NOT belongs to the child */
 				//write(pipeC3Fd[1], finalMsg, sizeof(finalMsg));				/* Forward the message to next child */
-				fprintf(fp,"%s\t%d%s%s\n",timeWriteRecord ,msgId, buffer, FWD_MSG);		/* print message to file with FORWARDED */
+				fprintf(fp,"%s\t\t%s\t%d%s%s\n",timeWrite2PipeRecord, timeWrite2FileRecord ,msgId, buffer, FWD_MSG);		/* print message to file with FORWARDED */
 			}
 			
 		}
@@ -458,8 +464,8 @@ void childProcess3Content(int pipeC3Fd[]) {
 
 	time_t timestamp;
 	int timing[3];
-	char timeWriteRecord[10];
-	char timeReadRecord[10];
+	char timeWrite2PipeRecord[10];
+	char timeWrite2FileRecord[10];
 	//setpriority(PRIO_PROCESS, 0, -20);
 
 	/* Write Back to Parent */
@@ -475,10 +481,10 @@ void childProcess3Content(int pipeC3Fd[]) {
 	
 	while(fgets(readBuffer, (sizeof(readBuffer) + 2), fp)) {			/* Read all the messages from the file */
 		calcTimestamp(timing, timestamp);
- 		snprintf(timeWriteRecord, sizeof(timeWriteRecord), "%d:%d:%d\t",timing[0],timing[1],timing[2]);
-		//snprintf(finalMsg, "%s%s", timeWriteRecord, readBuffer);
-		//snprintf(finalMsg, sizeof(finalMsg), timeWriteRecord);
-		strcat(finalMsg, timeWriteRecord);
+ 		snprintf(timeWrite2PipeRecord, sizeof(timeWrite2PipeRecord), "%d:%d:%d\t",timing[0],timing[1],timing[2]);
+		//snprintf(finalMsg, "%s%s", timeWrite2PipeRecord, readBuffer);
+		//snprintf(finalMsg, sizeof(finalMsg), timeWrite2PipeRecord);
+		strcat(finalMsg, timeWrite2PipeRecord);
 		//printf("Concat: %s",finalMsg);
 		strcat(finalMsg, readBuffer);
 		printf("Writing: %s",finalMsg );
@@ -488,7 +494,7 @@ void childProcess3Content(int pipeC3Fd[]) {
 		finalMsg[0] = '\0';
 	}
 
-	close(pipeC3Fd[1]);
+	
 	/* Read from Child Process 3 using the FIFO named pipe */
 
 	/* Create a named pipe if is not exist */
@@ -545,14 +551,15 @@ void childProcess3Content(int pipeC3Fd[]) {
 	// }
 	while(read(namedPipe, finalMsg, sizeof(finalMsg))) {	/* Read all the buffers from pipe */
 		
-		sscanf(finalMsg, "%[^\t]\t%d%[^\n]",timeWriteRecord ,&msgId, buffer);				/* Break the message into the ID and message */
-		
-		if(msgId == 2) {											/* Message is belongs to the child */
-			fprintf(fp,"%s\t%d%s%s\n",timeWriteRecord ,msgId, buffer, KEEP_MSG);	/* print message to file with KEEP */
+		sscanf(finalMsg, "%[^\t]\t%d%[^\n]",timeWrite2PipeRecord ,&msgId, buffer);				/* Break the message into the ID and message */
+		calcTimestamp(timing, timestamp);
+		snprintf(timeWrite2FileRecord, sizeof(timeWrite2FileRecord), "%d:%d:%d\t",timing[0],timing[1],timing[2]);
+		if(msgId == 4) {											/* Message is belongs to the child */
+			fprintf(fp,"%s\t\t%s\t%d%s%s\n",timeWrite2PipeRecord, timeWrite2FileRecord ,msgId, buffer, KEEP_MSG);	/* print message to file with KEEP */
 			//strcat(buffer, KEEP_MSG);								
 		} else {													 /* Message is NOT belongs to the child */
 			write(pipeC3Fd[1], finalMsg, sizeof(finalMsg));				/* Forward the message to next child */
-			fprintf(fp,"%s\t%d%s%s\n",timeWriteRecord ,msgId, buffer, FWD_MSG);		/* print message to file with FORWARDED */
+			fprintf(fp,"%s\t\t%s\t%d%s%s\n",timeWrite2PipeRecord, timeWrite2FileRecord ,msgId, buffer, FWD_MSG);		/* print message to file with FORWARDED */
 		}
 		
 	}
@@ -568,6 +575,7 @@ void childProcess3Content(int pipeC3Fd[]) {
 
 void calcTimestamp(int timing[], time_t timestamp) {
 	
+	timestamp = 0;
 	int now = time(&timestamp);
 
 	/*int clock = now - 18000;
