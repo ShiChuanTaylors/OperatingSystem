@@ -30,13 +30,15 @@ int main(int argc, char* argv[] ) {
 	/* Remove all existing log files */
 	remove(PP_LOG); remove(C1_LOG); remove(C2_LOG); remove(C3_LOG); remove(FIFO_PIPE);
 	
-	int pid;		
+	int pid;
 	int pipeFd[2];
 	/* Create unnamed pipe for the current process to the child */
 	if(pipe(pipeFd) == -1) {
 		perror("Pipe Error");
 	}
+
 	pid = (int)fork();		/* Fork a child process 1 */
+
 	if(pid == 0) {
 		/* Child 1 section */
 		close(pipeFd[1]);		/* Close the write pipe of child */
@@ -49,8 +51,8 @@ int main(int argc, char* argv[] ) {
 
 		/* Write to Childs */
 		printf("Parent writing to CP 1...\n");
-		/* Open Message File */
 
+		/* Open Message File */
 		while(fgets(readBuffer, (sizeof(readBuffer) + 2), fp)) {			/* Read all the messages from the file */
 			calcTimestamp(timing, timestamp);								/* Calculate Timestamp */
 	 		snprintf(timeWrite2PipeRecord, sizeof(timeWrite2PipeRecord), "%d:%d:%d\t",timing[0],timing[1],timing[2]);	/* Print timestamp to buffer */

@@ -1,6 +1,15 @@
+<<<<<<< HEAD
 11:27:41		11:27:41		1	"Wassup! Callin' frm Child Process 2, I love you"	Forwarded
 11:27:41		11:27:41		4	"Wassup! Callin' frm Child Process 2, I kiss you"	Keep
 11:27:41		11:27:41		2	"Wassup! Callin' frm Child Process 2, I want you"	Forwarded
 11:27:41		11:27:41		4	"Hello from Child Process 1, I kiss you"	Keep
 11:27:41		11:27:41		1	"Hello from Child Process 1, I want you"	Forwarded
 11:27:41		11:27:41		4	"Hello I'm Parent Process 1, I kiss you"	Keep
+=======
+11:2:40		11:2:40		4	"Hello! This is a message for process 4, I kiss you"	Keep
+11:2:40		11:2:40		1	"Yoyoyo! Is process 1 (root) here? I am gonna kill you"	Forwarded
+11:2:40		11:2:40		1	"Hello! This is a message for process 1 (root), I want you"	Forwarded
+11:2:40		11:2:40		1	"Wassup! Callin' process 1 (root), How are you?"	Forwarded
+11:2:40		11:2:40		4	"This message is for Process 4, I kiss you"	Keep
+11:2:40		11:2:40		4	"Wassup! Callin' process 4, I'am fine Thank you!"	Keep
+>>>>>>> 8676a826805f716b60e61c372341d1a738049ef8

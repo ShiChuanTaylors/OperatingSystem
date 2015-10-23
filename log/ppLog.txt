@@ -1,3 +1,0 @@
-6:53:7		6:53:7		1	"Yoyoyo! Is process 1 (root) here? I am gonna kill you"	Keep
-6:53:7		6:53:7		1	"Hello! This is a message for process 1 (root), I want you"	Keep
-6:53:7		6:53:7		1	"Wassup! Callin' process 1 (root), How are you?"	Keep

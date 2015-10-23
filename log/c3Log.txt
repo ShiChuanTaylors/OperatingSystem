@@ -1,6 +1,0 @@
-6:53:7		6:53:7		4	"Hello! This is a message for process 4, I kiss you"	Keep
-6:53:7		6:53:7		1	"Yoyoyo! Is process 1 (root) here? I am gonna kill you"	Forwarded
-6:53:7		6:53:7		1	"Hello! This is a message for process 1 (root), I want you"	Forwarded
-6:53:7		6:53:7		1	"Wassup! Callin' process 1 (root), How are you?"	Forwarded
-6:53:7		6:53:7		4	"This message is for Process 4, I kiss you"	Keep
-6:53:7		6:53:7		4	"Wassup! Callin' process 4, I'am fine Thank you!"	Keep
