@@ -3,7 +3,14 @@
 CREATED BY TING SHI CHUAN (0313664) - BACHELOR OF SOFTWARE ENGINEERING (YEAR 2 SEM 5)
 READ ME FILE:
 
-To view my development process and commit stages, please visit: https://github.com/ShiChuanTaylors/OperatingSystem.git and check the log using "git log --oneline"
+To view my development process and commit stages, please visit: 
+- Source code in git -
+https://github.com/ShiChuanTaylors/OperatingSystem.git
+
+- Commits in git -
+https://github.com/ShiChuanTaylors/OperatingSystem/commits/master
+
+
 
 THIS ASSIGNMENT HAS MADE WITH FEW ASSUMPTIONS:
 1. Message text file is under the path of "message/Messages.txt" for demo purpose. User is allow to use their own message file provided in the same format
