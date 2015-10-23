@@ -1,0 +1,16 @@
+2	"Wassup! Callin' process 2, THis is so AWESOME! :D"
+2	"This message is for Process 2, I miss you"
+4	"Hello! This is a message for process 4, I kiss you"
+1	"Yoyoyo! Is process 1 (root) here? I am gonna kill you"
+1	"Hello! This is a message for process 1 (root), I want you"
+3	"This message is for Process 3, I love you"
+2	"Yoyoyo! Is process 2 (root) here? Okok! No problem!"
+3	"Hello! This is a message for process 3, I HAHA you"
+1	"Wassup! Callin' process 1 (root), How are you?"
+4	"This message is for Process 4, I kiss you"
+4	"Wassup! Callin' process 4, I'am fine Thank you!"
+3	"Yoyoyo! Is process 3 (root) here? Multithreading ya! ;)"
+
+
+
+
